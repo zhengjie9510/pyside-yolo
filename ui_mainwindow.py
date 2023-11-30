@@ -24,7 +24,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(800, 600)
+        MainWindow.resize(840, 480)
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.horizontalLayout = QHBoxLayout(self.centralwidget)
@@ -37,8 +37,8 @@ class Ui_MainWindow(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.widget.sizePolicy().hasHeightForWidth())
         self.widget.setSizePolicy(sizePolicy)
-        self.widget.setMinimumSize(QSize(200, 0))
-        self.widget.setMaximumSize(QSize(300, 16777215))
+        self.widget.setMinimumSize(QSize(150, 0))
+        self.widget.setMaximumSize(QSize(250, 16777215))
         self.widget.setSizeIncrement(QSize(0, 0))
         self.widget.setBaseSize(QSize(0, 0))
         self.verticalLayout = QVBoxLayout(self.widget)
@@ -58,6 +58,7 @@ class Ui_MainWindow(object):
         self.formLayout_setting.setObjectName(u"formLayout_setting")
         self.formLayout_setting.setFieldGrowthPolicy(QFormLayout.ExpandingFieldsGrow)
         self.formLayout_setting.setLabelAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.formLayout_setting.setFormAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
         self.formLayout_setting.setHorizontalSpacing(5)
         self.formLayout_setting.setVerticalSpacing(10)
         self.label_task = QLabel(self.widget_setting)
@@ -120,9 +121,12 @@ class Ui_MainWindow(object):
         self.horizontalLayout_input.setObjectName(u"horizontalLayout_input")
         self.button_file = QPushButton(self.widget_setting)
         self.button_file.setObjectName(u"button_file")
-        sizePolicy.setHeightForWidth(self.button_file.sizePolicy().hasHeightForWidth())
-        self.button_file.setSizePolicy(sizePolicy)
         self.button_file.setContextMenuPolicy(Qt.DefaultContextMenu)
+        self.button_file.setInputMethodHints(Qt.ImhNone)
+        icon = QIcon()
+        icon.addFile(u"icons/file.png", QSize(), QIcon.Normal, QIcon.Off)
+        self.button_file.setIcon(icon)
+        self.button_file.setFlat(True)
 
         self.horizontalLayout_input.addWidget(self.button_file)
 
@@ -131,6 +135,7 @@ class Ui_MainWindow(object):
         sizePolicy.setHeightForWidth(self.button_local_camera.sizePolicy().hasHeightForWidth())
         self.button_local_camera.setSizePolicy(sizePolicy)
         self.button_local_camera.setContextMenuPolicy(Qt.DefaultContextMenu)
+        self.button_local_camera.setFlat(True)
 
         self.horizontalLayout_input.addWidget(self.button_local_camera)
 
@@ -139,6 +144,7 @@ class Ui_MainWindow(object):
         sizePolicy.setHeightForWidth(self.button_network_camera.sizePolicy().hasHeightForWidth())
         self.button_network_camera.setSizePolicy(sizePolicy)
         self.button_network_camera.setContextMenuPolicy(Qt.DefaultContextMenu)
+        self.button_network_camera.setFlat(True)
 
         self.horizontalLayout_input.addWidget(self.button_network_camera)
 
@@ -152,6 +158,14 @@ class Ui_MainWindow(object):
         self.label_conf.setContextMenuPolicy(Qt.DefaultContextMenu)
 
         self.formLayout_setting.setWidget(3, QFormLayout.LabelRole, self.label_conf)
+
+        self.horizontalSlider_conf = QSlider(self.widget_setting)
+        self.horizontalSlider_conf.setObjectName(u"horizontalSlider_conf")
+        self.horizontalSlider_conf.setMaximum(100)
+        self.horizontalSlider_conf.setSliderPosition(25)
+        self.horizontalSlider_conf.setOrientation(Qt.Horizontal)
+
+        self.formLayout_setting.setWidget(3, QFormLayout.FieldRole, self.horizontalSlider_conf)
 
         self.label_iou = QLabel(self.widget_setting)
         self.label_iou.setObjectName(u"label_iou")
@@ -168,14 +182,6 @@ class Ui_MainWindow(object):
         self.horizontalSlider_iou.setOrientation(Qt.Horizontal)
 
         self.formLayout_setting.setWidget(4, QFormLayout.FieldRole, self.horizontalSlider_iou)
-
-        self.horizontalSlider_conf = QSlider(self.widget_setting)
-        self.horizontalSlider_conf.setObjectName(u"horizontalSlider_conf")
-        self.horizontalSlider_conf.setMaximum(100)
-        self.horizontalSlider_conf.setSliderPosition(25)
-        self.horizontalSlider_conf.setOrientation(Qt.Horizontal)
-
-        self.formLayout_setting.setWidget(3, QFormLayout.FieldRole, self.horizontalSlider_conf)
 
 
         self.horizontalLayout_2.addLayout(self.formLayout_setting)
@@ -195,7 +201,7 @@ class Ui_MainWindow(object):
         self.label_image.setObjectName(u"label_image")
         sizePolicy.setHeightForWidth(self.label_image.sizePolicy().hasHeightForWidth())
         self.label_image.setSizePolicy(sizePolicy)
-        self.label_image.setMinimumSize(QSize(300, 300))
+        self.label_image.setMinimumSize(QSize(300, 200))
         self.label_image.setStyleSheet(u"background-color: gray;")
         self.label_image.setAlignment(Qt.AlignCenter)
 
@@ -204,7 +210,7 @@ class Ui_MainWindow(object):
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(MainWindow)
         self.menubar.setObjectName(u"menubar")
-        self.menubar.setGeometry(QRect(0, 0, 800, 36))
+        self.menubar.setGeometry(QRect(0, 0, 840, 36))
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QStatusBar(MainWindow)
         self.statusbar.setObjectName(u"statusbar")
@@ -224,9 +230,9 @@ class Ui_MainWindow(object):
         self.comboBox_model.setItemText(0, QCoreApplication.translate("MainWindow", u"yolov8n.pt", None))
 
         self.label_input.setText(QCoreApplication.translate("MainWindow", u"Input:", None))
-        self.button_file.setText(QCoreApplication.translate("MainWindow", u"File", None))
+        self.button_file.setText("")
         self.button_local_camera.setText(QCoreApplication.translate("MainWindow", u"Camera", None))
-        self.button_network_camera.setText(QCoreApplication.translate("MainWindow", u"Camera", None))
+        self.button_network_camera.setText(QCoreApplication.translate("MainWindow", u"Network", None))
         self.label_conf.setText(QCoreApplication.translate("MainWindow", u"conf", None))
         self.label_iou.setText(QCoreApplication.translate("MainWindow", u"IoU", None))
         self.label_image.setText("")

@@ -6,6 +6,7 @@ from PySide6.QtCore import Qt, QTimer
 from ui_mainwindow import Ui_MainWindow
 from ultralytics import YOLO
 import torch
+
 model = YOLO('yolov8n.pt')
 
 
@@ -32,7 +33,8 @@ class MainWindow(QMainWindow):
         If an image file is selected, display the image.
         """
         file_dialog = QFileDialog()
-        name, _ = file_dialog.getOpenFileName(self, 'Open file', filter='Media files (*.png *.jpg *.bmp *.jpeg *.gif *.mp4 *.avi *.mkv)')
+        name, _ = file_dialog.getOpenFileName(self, 'Open file',
+                                              filter='Media files (*.png *.jpg *.bmp *.jpeg *.gif *.mp4 *.avi *.mkv)')
         if name:
             if self.is_video_file(name):
                 self.play_video(name)
@@ -128,11 +130,8 @@ class MainWindow(QMainWindow):
         """
         conf = self.ui.horizontalSlider_conf.value() / 100
         iou = self.ui.horizontalSlider_iou.value() / 100
-        if torch.backends.cudnn.is_available():
-            device = 'cuda'
-        else:
-            device = 'cpu'
-        result = model(image, device=device, verbose=False, conf = conf, iou = iou)[0]
+        device = 'cuda' if torch.backends.cudnn.is_available() else 'cpu'
+        result = model(image, device=device, verbose=False, conf=conf, iou=iou)[0]
         processed_image = result.plot()
         return processed_image
 
