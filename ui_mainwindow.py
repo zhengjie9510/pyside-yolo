@@ -53,11 +53,12 @@ class Ui_MainWindow(object):
         self.widget_setting.setBaseSize(QSize(0, 0))
         self.horizontalLayout_2 = QHBoxLayout(self.widget_setting)
         self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
+        self.horizontalLayout_2.setContentsMargins(0, 0, 0, 0)
         self.formLayout_setting = QFormLayout()
         self.formLayout_setting.setObjectName(u"formLayout_setting")
-        self.formLayout_setting.setLabelAlignment(Qt.AlignCenter)
-        self.formLayout_setting.setFormAlignment(Qt.AlignCenter)
-        self.formLayout_setting.setHorizontalSpacing(4)
+        self.formLayout_setting.setFieldGrowthPolicy(QFormLayout.ExpandingFieldsGrow)
+        self.formLayout_setting.setLabelAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.formLayout_setting.setHorizontalSpacing(5)
         self.formLayout_setting.setVerticalSpacing(10)
         self.label_task = QLabel(self.widget_setting)
         self.label_task.setObjectName(u"label_task")
@@ -99,6 +100,7 @@ class Ui_MainWindow(object):
         self.formLayout_setting.setWidget(1, QFormLayout.LabelRole, self.label_model)
 
         self.comboBox_model = QComboBox(self.widget_setting)
+        self.comboBox_model.addItem("")
         self.comboBox_model.setObjectName(u"comboBox_model")
         sizePolicy.setHeightForWidth(self.comboBox_model.sizePolicy().hasHeightForWidth())
         self.comboBox_model.setSizePolicy(sizePolicy)
@@ -151,12 +153,6 @@ class Ui_MainWindow(object):
 
         self.formLayout_setting.setWidget(3, QFormLayout.LabelRole, self.label_conf)
 
-        self.horizontalSlider_conf = QSlider(self.widget_setting)
-        self.horizontalSlider_conf.setObjectName(u"horizontalSlider_conf")
-        self.horizontalSlider_conf.setOrientation(Qt.Horizontal)
-
-        self.formLayout_setting.setWidget(3, QFormLayout.FieldRole, self.horizontalSlider_conf)
-
         self.label_iou = QLabel(self.widget_setting)
         self.label_iou.setObjectName(u"label_iou")
         sizePolicy.setHeightForWidth(self.label_iou.sizePolicy().hasHeightForWidth())
@@ -167,9 +163,19 @@ class Ui_MainWindow(object):
 
         self.horizontalSlider_iou = QSlider(self.widget_setting)
         self.horizontalSlider_iou.setObjectName(u"horizontalSlider_iou")
+        self.horizontalSlider_iou.setMaximum(100)
+        self.horizontalSlider_iou.setSliderPosition(70)
         self.horizontalSlider_iou.setOrientation(Qt.Horizontal)
 
         self.formLayout_setting.setWidget(4, QFormLayout.FieldRole, self.horizontalSlider_iou)
+
+        self.horizontalSlider_conf = QSlider(self.widget_setting)
+        self.horizontalSlider_conf.setObjectName(u"horizontalSlider_conf")
+        self.horizontalSlider_conf.setMaximum(100)
+        self.horizontalSlider_conf.setSliderPosition(25)
+        self.horizontalSlider_conf.setOrientation(Qt.Horizontal)
+
+        self.formLayout_setting.setWidget(3, QFormLayout.FieldRole, self.horizontalSlider_conf)
 
 
         self.horizontalLayout_2.addLayout(self.formLayout_setting)
@@ -190,6 +196,7 @@ class Ui_MainWindow(object):
         sizePolicy.setHeightForWidth(self.label_image.sizePolicy().hasHeightForWidth())
         self.label_image.setSizePolicy(sizePolicy)
         self.label_image.setMinimumSize(QSize(300, 300))
+        self.label_image.setStyleSheet(u"background-color: gray;")
         self.label_image.setAlignment(Qt.AlignCenter)
 
         self.horizontalLayout.addWidget(self.label_image)
@@ -197,7 +204,7 @@ class Ui_MainWindow(object):
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(MainWindow)
         self.menubar.setObjectName(u"menubar")
-        self.menubar.setGeometry(QRect(0, 0, 800, 18))
+        self.menubar.setGeometry(QRect(0, 0, 800, 36))
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QStatusBar(MainWindow)
         self.statusbar.setObjectName(u"statusbar")
@@ -214,12 +221,14 @@ class Ui_MainWindow(object):
         self.radioButton_detect.setText(QCoreApplication.translate("MainWindow", u"Detect", None))
         self.radioButton_track.setText(QCoreApplication.translate("MainWindow", u"Track", None))
         self.label_model.setText(QCoreApplication.translate("MainWindow", u"Model:", None))
+        self.comboBox_model.setItemText(0, QCoreApplication.translate("MainWindow", u"yolov8n.pt", None))
+
         self.label_input.setText(QCoreApplication.translate("MainWindow", u"Input:", None))
-        self.button_file.setText(QCoreApplication.translate("MainWindow", u"PushButton", None))
-        self.button_local_camera.setText(QCoreApplication.translate("MainWindow", u"PushButton", None))
-        self.button_network_camera.setText(QCoreApplication.translate("MainWindow", u"PushButton", None))
+        self.button_file.setText(QCoreApplication.translate("MainWindow", u"File", None))
+        self.button_local_camera.setText(QCoreApplication.translate("MainWindow", u"Camera", None))
+        self.button_network_camera.setText(QCoreApplication.translate("MainWindow", u"Camera", None))
         self.label_conf.setText(QCoreApplication.translate("MainWindow", u"conf", None))
         self.label_iou.setText(QCoreApplication.translate("MainWindow", u"IoU", None))
-        self.label_image.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
+        self.label_image.setText("")
     # retranslateUi
 

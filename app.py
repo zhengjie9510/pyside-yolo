@@ -5,6 +5,7 @@ from PySide6.QtGui import QPixmap, QImage, QResizeEvent
 from PySide6.QtCore import Qt, QTimer
 from ui_mainwindow import Ui_MainWindow
 from ultralytics import YOLO
+import torch
 model = YOLO('yolov8n.pt')
 
 
@@ -21,8 +22,8 @@ class MainWindow(QMainWindow):
         self.original_image = None  # Store the original image
 
         self.ui.button_file.clicked.connect(self.open_file)
-        # self.ui.local_camera_button.clicked.connect(self.open_camera)
-        # self.ui.network_camera_button.clicked.connect(self.open_camera)
+        self.ui.button_local_camera.clicked.connect(self.open_camera)
+        self.ui.button_network_camera.clicked.connect(self.open_camera)
 
     def open_file(self):
         """
@@ -63,6 +64,11 @@ class MainWindow(QMainWindow):
         """
         self.stop_video()
         self.video_capture = cv2.VideoCapture(file_path)
+        self.timer.start(30)
+
+    def open_camera(self):
+        self.stop_video()
+        self.video_capture = cv2.VideoCapture(0)
         self.timer.start(30)
 
     def stop_video(self):
@@ -120,7 +126,13 @@ class MainWindow(QMainWindow):
         Returns:
             numpy.ndarray: The processed image.
         """
-        result = model(image, verbose=False)[0]
+        conf = self.ui.horizontalSlider_conf.value() / 100
+        iou = self.ui.horizontalSlider_iou.value() / 100
+        if torch.backends.cudnn.is_available():
+            device = 'cuda'
+        else:
+            device = 'cpu'
+        result = model(image, device=device, verbose=False, conf = conf, iou = iou)[0]
         processed_image = result.plot()
         return processed_image
 

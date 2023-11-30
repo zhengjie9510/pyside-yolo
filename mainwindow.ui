@@ -66,16 +66,28 @@
           </size>
          </property>
          <layout class="QHBoxLayout" name="horizontalLayout_2">
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
           <item>
            <layout class="QFormLayout" name="formLayout_setting">
-            <property name="labelAlignment">
-             <set>Qt::AlignCenter</set>
+            <property name="fieldGrowthPolicy">
+             <enum>QFormLayout::ExpandingFieldsGrow</enum>
             </property>
-            <property name="formAlignment">
-             <set>Qt::AlignCenter</set>
+            <property name="labelAlignment">
+             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
             </property>
             <property name="horizontalSpacing">
-             <number>4</number>
+             <number>5</number>
             </property>
             <property name="verticalSpacing">
              <number>10</number>
@@ -165,6 +177,11 @@
               <property name="contextMenuPolicy">
                <enum>Qt::DefaultContextMenu</enum>
               </property>
+              <item>
+               <property name="text">
+                <string>yolov8n.pt</string>
+               </property>
+              </item>
              </widget>
             </item>
             <item row="2" column="0">
@@ -197,7 +214,7 @@
                  <enum>Qt::DefaultContextMenu</enum>
                 </property>
                 <property name="text">
-                 <string>PushButton</string>
+                 <string>File</string>
                 </property>
                </widget>
               </item>
@@ -213,7 +230,7 @@
                  <enum>Qt::DefaultContextMenu</enum>
                 </property>
                 <property name="text">
-                 <string>PushButton</string>
+                 <string>Camera</string>
                 </property>
                </widget>
               </item>
@@ -229,7 +246,7 @@
                  <enum>Qt::DefaultContextMenu</enum>
                 </property>
                 <property name="text">
-                 <string>PushButton</string>
+                 <string>Camera</string>
                 </property>
                </widget>
               </item>
@@ -251,13 +268,6 @@
               </property>
              </widget>
             </item>
-            <item row="3" column="1">
-             <widget class="QSlider" name="horizontalSlider_conf">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-             </widget>
-            </item>
             <item row="4" column="0">
              <widget class="QLabel" name="label_iou">
               <property name="sizePolicy">
@@ -276,6 +286,25 @@
             </item>
             <item row="4" column="1">
              <widget class="QSlider" name="horizontalSlider_iou">
+              <property name="maximum">
+               <number>100</number>
+              </property>
+              <property name="sliderPosition">
+               <number>70</number>
+              </property>
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="1">
+             <widget class="QSlider" name="horizontalSlider_conf">
+              <property name="maximum">
+               <number>100</number>
+              </property>
+              <property name="sliderPosition">
+               <number>25</number>
+              </property>
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
               </property>
@@ -306,8 +335,11 @@
         <height>300</height>
        </size>
       </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: gray;</string>
+      </property>
       <property name="text">
-       <string>TextLabel</string>
+       <string/>
       </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>
@@ -322,7 +354,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>18</height>
+     <height>36</height>
     </rect>
    </property>
   </widget>
