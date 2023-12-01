@@ -80,9 +80,6 @@
           </property>
           <item>
            <layout class="QFormLayout" name="formLayout_setting">
-            <property name="fieldGrowthPolicy">
-             <enum>QFormLayout::ExpandingFieldsGrow</enum>
-            </property>
             <property name="labelAlignment">
              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
             </property>
@@ -177,14 +174,9 @@
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
-              <property name="contextMenuPolicy">
-               <enum>Qt::DefaultContextMenu</enum>
+              <property name="currentText">
+               <string/>
               </property>
-              <item>
-               <property name="text">
-                <string>yolov8n.pt</string>
-               </property>
-              </item>
              </widget>
             </item>
             <item row="2" column="0">
@@ -248,17 +240,21 @@
               </item>
               <item>
                <widget class="QPushButton" name="button_local_camera">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
                 <property name="contextMenuPolicy">
                  <enum>Qt::DefaultContextMenu</enum>
                 </property>
                 <property name="text">
-                 <string>Camera</string>
+                 <string/>
+                </property>
+                <property name="icon">
+                 <iconset>
+                  <normaloff>icons/camera.png</normaloff>icons/camera.png</iconset>
+                </property>
+                <property name="iconSize">
+                 <size>
+                  <width>20</width>
+                  <height>20</height>
+                 </size>
                 </property>
                 <property name="flat">
                  <bool>true</bool>
@@ -267,17 +263,21 @@
               </item>
               <item>
                <widget class="QPushButton" name="button_network_camera">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
                 <property name="contextMenuPolicy">
                  <enum>Qt::DefaultContextMenu</enum>
                 </property>
                 <property name="text">
-                 <string>Network</string>
+                 <string/>
+                </property>
+                <property name="icon">
+                 <iconset>
+                  <normaloff>icons/network.png</normaloff>icons/network.png</iconset>
+                </property>
+                <property name="iconSize">
+                 <size>
+                  <width>20</width>
+                  <height>20</height>
+                 </size>
                 </property>
                 <property name="flat">
                  <bool>true</bool>
@@ -388,7 +388,7 @@
      <x>0</x>
      <y>0</y>
      <width>840</width>
-     <height>36</height>
+     <height>18</height>
     </rect>
    </property>
   </widget>

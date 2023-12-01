@@ -1,13 +1,69 @@
 import sys
 import cv2
+from pathlib import Path
 from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog
 from PySide6.QtGui import QPixmap, QImage, QResizeEvent
 from PySide6.QtCore import Qt, QTimer
 from ui_mainwindow import Ui_MainWindow
 from ultralytics import YOLO
 import torch
+import supervision as sv
 
-model = YOLO('yolov8n.pt')
+
+class Model(YOLO):
+    """
+    A class representing a YOLO model.
+
+    Attributes:
+        device (str): The device to use for inference ('cuda' or 'cpu').
+        byte_tracker: The byte tracker object.
+        box_annotator: The bounding box annotator object.
+        label_annotator: The label annotator object.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.my_device = 'cuda' if torch.backends.cudnn.is_available() else 'cpu'
+        self.byte_tracker = None
+        self.box_annotator = sv.BoundingBoxAnnotator()
+        self.label_annotator = sv.LabelAnnotator()
+
+    def predict(self, frame, **kwargs):
+        """
+        Perform object detection on a single frame.
+
+        Args:
+            frame: The input frame.
+            **kwargs: Additional keyword arguments for prediction.
+
+        Returns:
+            annotated_frame: The annotated frame with bounding boxes and labels.
+        """
+        results = super().predict(frame, verbose=False, device=self.my_device, **kwargs)[0]
+        detections = sv.Detections.from_ultralytics(results)
+        labels = [results.names[class_id] for class_id in detections.class_id]
+        annotated_frame = self.box_annotator.annotate(frame, detections=detections)
+        annotated_frame = self.label_annotator.annotate(annotated_frame, detections=detections, labels=labels)
+        return annotated_frame
+
+    def track(self, frame, **kwargs):
+        """
+        Perform object tracking on a single frame.
+
+        Args:
+            frame: The input frame.
+            **kwargs: Additional keyword arguments for prediction.
+
+        Returns:
+            annotated_frame: The annotated frame with bounding boxes and labels.
+        """
+        results = super().predict(frame, verbose=False, device=self.my_device, **kwargs)[0]
+        detections = sv.Detections.from_ultralytics(results)
+        detections = self.byte_tracker.update_with_detections(detections)
+        labels = [f"#{tracker_id} {results.names[class_id]}" for class_id, tracker_id in zip(detections.class_id, detections.tracker_id)]
+        annotated_frame = self.box_annotator.annotate(frame, detections=detections)
+        annotated_frame = self.label_annotator.annotate(annotated_frame, detections=detections, labels=labels)
+        return annotated_frame
 
 
 class MainWindow(QMainWindow):
@@ -16,15 +72,41 @@ class MainWindow(QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
 
+        self.add_model()
+        self.model = Model(self.ui.comboBox_model.currentText())
+        self.task = 'detect'
+
         # Video player variables
         self.video_capture = None
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.update_frame)
         self.original_image = None  # Store the original image
+        self.video_capture = None  # Store the video capture object
 
         self.ui.button_file.clicked.connect(self.open_file)
         self.ui.button_local_camera.clicked.connect(self.open_camera)
-        self.ui.button_network_camera.clicked.connect(self.open_camera)
+        # self.ui.button_network_camera.clicked.connect(self.open_camera)
+        self.ui.button_network_camera.deleteLater()
+
+        self.ui.radioButton_detect.clicked.connect(self.change_task)
+        self.ui.radioButton_track.clicked.connect(self.change_task)
+
+    def add_model(self):
+        model_list = Path('.').glob('*.pt')
+        for model in model_list:
+            self.ui.comboBox_model.addItem(model.name)
+
+    def change_task(self):
+        """
+        Change the task to either detection or tracking.
+        """
+        print('change task')
+        if self.ui.radioButton_detect.isChecked():
+            self.model.byte_tracker = None
+            self.task = 'detect'
+        elif self.ui.radioButton_track.isChecked():
+            self.model.byte_tracker = sv.ByteTrack()
+            self.task = 'track'
 
     def open_file(self):
         """
@@ -54,6 +136,22 @@ class MainWindow(QMainWindow):
         video_extensions = ('.mp4', '.avi', '.mkv')
         return file_path.lower().endswith(video_extensions)
 
+    def show_image(self, file_path):
+        """
+        Display an image file.
+
+        Args:
+            file_path (str): The path to the image file.
+
+        Returns:
+            None
+        """
+        self.stop_update()
+        image = cv2.imread(file_path)
+        self.original_image = image
+        self.display_image(self.original_image.copy(), self.ui.label_image)
+        self.timer.start(500)
+
     def play_video(self, file_path):
         """
         Play a video file.
@@ -64,40 +162,51 @@ class MainWindow(QMainWindow):
         Returns:
             None
         """
-        self.stop_video()
+        self.stop_update()
         self.video_capture = cv2.VideoCapture(file_path)
-        self.timer.start(30)
+        self.timer.start()
 
-    def open_camera(self):
-        self.stop_video()
-        self.video_capture = cv2.VideoCapture(0)
-        self.timer.start(30)
+    def open_camera(self, camera_index=0):
+        """
+        打开摄像头并开始视频捕获。
 
-    def stop_video(self):
+        参数：
+        - camera_index：摄像头索引，默认为0
+
+        返回值：无
+        """
+        self.stop_update()
+        self.video_capture = cv2.VideoCapture(camera_index)
+        self.timer.start()
+
+    def stop_update(self):
         """
         Stops the video capture and timer.
 
         Releases the video capture object and stops the timer.
         """
         if self.video_capture is not None:
+            self.original_image = None
             self.video_capture.release()
             self.timer.stop()
 
     def update_frame(self):
         """
-        更新帧，从视频捕获设备中读取帧并显示在界面上的图像标签上。
+        Updates the frame displayed in the UI.
 
-        Args:
-            self: 当前对象的引用。
-
-        Returns:
-            无返回值。
+        If the video capture is opened, it reads a frame from the capture and displays it in the UI.
+        If the frame is successfully read, it calls the display_image method to display the frame.
+        If the frame cannot be read, it stops updating the frame.
+        If the video capture is not opened, it displays the original image in the UI.
         """
-        ret, frame = self.video_capture.read()
-        if ret:
-            self.display_image(frame, self.ui.label_image)
+        if self.video_capture and self.video_capture.isOpened():
+            ret, frame = self.video_capture.read()
+            if ret:
+                self.display_image(frame, self.ui.label_image)
+            else:
+                self.stop_update()
         else:
-            self.stop_video()
+            self.display_image(self.original_image.copy(), self.ui.label_image)
 
     def display_image(self, image, label):
         """
@@ -130,23 +239,11 @@ class MainWindow(QMainWindow):
         """
         conf = self.ui.horizontalSlider_conf.value() / 100
         iou = self.ui.horizontalSlider_iou.value() / 100
-        device = 'cuda' if torch.backends.cudnn.is_available() else 'cpu'
-        result = model(image, device=device, verbose=False, conf=conf, iou=iou)[0]
-        processed_image = result.plot()
-        return processed_image
-
-    def resizeEvent(self, event: QResizeEvent):
-        """
-        This method is called when the widget is resized.
-
-        Args:
-            event (QResizeEvent): The resize event object.
-
-        Returns:
-            None
-        """
-        if self.original_image is not None and (self.video_capture is None or not self.video_capture.isOpened()):
-            self.display_image(self.original_image)
+        if self.task == 'detect':
+            result = self.model.predict(image, conf=conf, iou=iou)
+        elif self.task == 'track':
+            result = self.model.track(image, conf=conf, iou=iou)
+        return result
 
 
 if __name__ == "__main__":
