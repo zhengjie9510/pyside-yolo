@@ -11,7 +11,11 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>PySide-YOLO</string>
+  </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>icons/window.png</normaloff>icons/window.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QHBoxLayout" name="horizontalLayout">
@@ -80,6 +84,9 @@
           </property>
           <item>
            <layout class="QFormLayout" name="formLayout_setting">
+            <property name="fieldGrowthPolicy">
+             <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+            </property>
             <property name="labelAlignment">
              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
             </property>
@@ -388,7 +395,7 @@
      <x>0</x>
      <y>0</y>
      <width>840</width>
-     <height>18</height>
+     <height>36</height>
     </rect>
    </property>
   </widget>

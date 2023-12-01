@@ -44,7 +44,7 @@ class Model(YOLO):
         labels = [results.names[class_id] for class_id in detections.class_id]
         annotated_frame = self.box_annotator.annotate(frame, detections=detections)
         annotated_frame = self.label_annotator.annotate(annotated_frame, detections=detections, labels=labels)
-        return annotated_frame
+        return annotated_frame,results.verbose()
 
     def track(self, frame, **kwargs):
         """
@@ -63,7 +63,7 @@ class Model(YOLO):
         labels = [f"#{tracker_id} {results.names[class_id]}" for class_id, tracker_id in zip(detections.class_id, detections.tracker_id)]
         annotated_frame = self.box_annotator.annotate(frame, detections=detections)
         annotated_frame = self.label_annotator.annotate(annotated_frame, detections=detections, labels=labels)
-        return annotated_frame
+        return annotated_frame,results.verbose()
 
 
 class MainWindow(QMainWindow):
@@ -71,13 +71,8 @@ class MainWindow(QMainWindow):
         super(MainWindow, self).__init__()
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
+        self.setWindowTitle('PySide6-YOLO')
 
-        self.add_model()
-        self.model = Model(self.ui.comboBox_model.currentText())
-        self.task = 'detect'
-
-        # Video player variables
-        self.video_capture = None
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.update_frame)
         self.original_image = None  # Store the original image
@@ -85,22 +80,32 @@ class MainWindow(QMainWindow):
 
         self.ui.button_file.clicked.connect(self.open_file)
         self.ui.button_local_camera.clicked.connect(self.open_camera)
-        # self.ui.button_network_camera.clicked.connect(self.open_camera)
         self.ui.button_network_camera.deleteLater()
 
         self.ui.radioButton_detect.clicked.connect(self.change_task)
         self.ui.radioButton_track.clicked.connect(self.change_task)
+        self.ui.comboBox_model.currentIndexChanged.connect(self.change_model)
 
-    def add_model(self):
-        model_list = Path('.').glob('*.pt')
-        for model in model_list:
-            self.ui.comboBox_model.addItem(model.name)
+        self.add_model_list()
+        self.change_model()
+        self.change_task()
+        
+
+    def add_model_list(self):
+        model_list = [model.name for model in Path('.').glob('*.pt')]
+        self.ui.comboBox_model.addItems(model_list)
+    
+    def change_model(self):
+        model_path = self.ui.comboBox_model.currentText()
+        try:
+            self.model = Model(model_path) if model_path else None
+        except:
+            self.model = None
 
     def change_task(self):
         """
         Change the task to either detection or tracking.
         """
-        print('change task')
         if self.ui.radioButton_detect.isChecked():
             self.model.byte_tracker = None
             self.task = 'detect'
@@ -166,7 +171,7 @@ class MainWindow(QMainWindow):
         self.video_capture = cv2.VideoCapture(file_path)
         self.timer.start()
 
-    def open_camera(self, camera_index=0):
+    def open_camera(self):
         """
         打开摄像头并开始视频捕获。
 
@@ -176,7 +181,7 @@ class MainWindow(QMainWindow):
         返回值：无
         """
         self.stop_update()
-        self.video_capture = cv2.VideoCapture(camera_index)
+        self.video_capture = cv2.VideoCapture(0)
         self.timer.start()
 
     def stop_update(self):
@@ -202,11 +207,15 @@ class MainWindow(QMainWindow):
         if self.video_capture and self.video_capture.isOpened():
             ret, frame = self.video_capture.read()
             if ret:
-                self.display_image(frame, self.ui.label_image)
+                image,log = self.apply_yolo_model(frame)
+                self.display_image(image, self.ui.label_image)
+                self.ui.textBrowser.setText(log)
             else:
                 self.stop_update()
         else:
-            self.display_image(self.original_image.copy(), self.ui.label_image)
+            image,log = self.apply_yolo_model(self.original_image.copy())
+            self.display_image(image, self.ui.label_image)
+            self.ui.textBrowser.setText(log)
 
     def display_image(self, image, label):
         """
@@ -216,7 +225,6 @@ class MainWindow(QMainWindow):
             image (numpy.ndarray): The image to be displayed.
             label (QLabel): The label where the image will be displayed.
         """
-        image = self.apply_yolo_model(image)
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         height, width, channel = image.shape
         image = QImage(image, width, height, width * channel, QImage.Format_RGB888)
@@ -237,13 +245,15 @@ class MainWindow(QMainWindow):
         Returns:
             numpy.ndarray: The processed image.
         """
+        if self.model is None:
+            return image
         conf = self.ui.horizontalSlider_conf.value() / 100
         iou = self.ui.horizontalSlider_iou.value() / 100
         if self.task == 'detect':
-            result = self.model.predict(image, conf=conf, iou=iou)
+            result,log = self.model.predict(image, conf=conf, iou=iou)
         elif self.task == 'track':
-            result = self.model.track(image, conf=conf, iou=iou)
-        return result
+            result,log = self.model.track(image, conf=conf, iou=iou)
+        return result,log
 
 
 if __name__ == "__main__":
