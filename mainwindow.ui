@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>840</width>
-    <height>480</height>
+    <height>500</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -32,7 +32,7 @@
       </property>
       <property name="minimumSize">
        <size>
-        <width>150</width>
+        <width>200</width>
         <height>0</height>
        </size>
       </property>
@@ -54,7 +54,16 @@
         <height>0</height>
        </size>
       </property>
+      <property name="autoFillBackground">
+       <bool>true</bool>
+      </property>
       <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0">
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
        <item>
         <widget class="QWidget" name="widget_setting" native="true">
          <property name="sizePolicy">
@@ -69,7 +78,7 @@
            <height>0</height>
           </size>
          </property>
-         <layout class="QHBoxLayout" name="horizontalLayout_2">
+         <layout class="QVBoxLayout" name="verticalLayout_2">
           <property name="leftMargin">
            <number>0</number>
           </property>
@@ -99,6 +108,9 @@
             <property name="verticalSpacing">
              <number>10</number>
             </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
             <item row="1" column="0">
              <widget class="QLabel" name="label_model">
               <property name="sizePolicy">
@@ -117,6 +129,116 @@
                <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
               </property>
              </widget>
+            </item>
+            <item row="1" column="1">
+             <layout class="QHBoxLayout" name="horizontalLayout_model">
+              <item>
+               <widget class="QLineEdit" name="lineEdit_model">
+                <property name="focusPolicy">
+                 <enum>Qt::ClickFocus</enum>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">QLineEdit {
+    border: 1px solid gray;
+    border-radius: 2px;
+}</string>
+                </property>
+                <property name="inputMethodHints">
+                 <set>Qt::ImhNone</set>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+                <property name="frame">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="button_model">
+                <property name="enabled">
+                 <bool>true</bool>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>30</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+                <property name="icon">
+                 <iconset>
+                  <normaloff>icons/file.png</normaloff>icons/file.png</iconset>
+                </property>
+                <property name="iconSize">
+                 <size>
+                  <width>20</width>
+                  <height>20</height>
+                 </size>
+                </property>
+                <property name="flat">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="2" column="0">
+             <widget class="QLabel" name="label_task">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="contextMenuPolicy">
+               <enum>Qt::DefaultContextMenu</enum>
+              </property>
+              <property name="text">
+               <string>Task:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1">
+             <layout class="QHBoxLayout" name="horizontalLayout_task">
+              <item>
+               <widget class="QRadioButton" name="radioButton_detect">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="contextMenuPolicy">
+                 <enum>Qt::DefaultContextMenu</enum>
+                </property>
+                <property name="text">
+                 <string>Detect</string>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="radioButton_track">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="contextMenuPolicy">
+                 <enum>Qt::DefaultContextMenu</enum>
+                </property>
+                <property name="text">
+                 <string>Track</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
             </item>
             <item row="3" column="0">
              <widget class="QLabel" name="label_input">
@@ -237,11 +359,38 @@
                <enum>Qt::DefaultContextMenu</enum>
               </property>
               <property name="text">
-               <string>conf</string>
+               <string>conf:</string>
               </property>
              </widget>
             </item>
-            <item row="4" column="1">
+            <item row="5" column="0">
+             <widget class="QSpinBox" name="spinBox_conf">
+              <property name="font">
+               <font>
+                <pointsize>10</pointsize>
+               </font>
+              </property>
+              <property name="acceptDrops">
+               <bool>false</bool>
+              </property>
+              <property name="wrapping">
+               <bool>false</bool>
+              </property>
+              <property name="accelerated">
+               <bool>false</bool>
+              </property>
+              <property name="keyboardTracking">
+               <bool>true</bool>
+              </property>
+              <property name="maximum">
+               <number>100</number>
+              </property>
+              <property name="value">
+               <number>25</number>
+              </property>
+             </widget>
+            </item>
+            <item row="5" column="1">
              <widget class="QSlider" name="horizontalSlider_conf">
               <property name="maximum">
                <number>100</number>
@@ -254,7 +403,7 @@
               </property>
              </widget>
             </item>
-            <item row="5" column="0">
+            <item row="6" column="0">
              <widget class="QLabel" name="label_iou">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -266,11 +415,26 @@
                <enum>Qt::DefaultContextMenu</enum>
               </property>
               <property name="text">
-               <string>IoU</string>
+               <string>IoU:</string>
               </property>
              </widget>
             </item>
-            <item row="5" column="1">
+            <item row="7" column="0">
+             <widget class="QSpinBox" name="spinBox_iou">
+              <property name="font">
+               <font>
+                <pointsize>10</pointsize>
+               </font>
+              </property>
+              <property name="maximum">
+               <number>100</number>
+              </property>
+              <property name="value">
+               <number>70</number>
+              </property>
+             </widget>
+            </item>
+            <item row="7" column="1">
              <widget class="QSlider" name="horizontalSlider_iou">
               <property name="maximum">
                <number>100</number>
@@ -283,109 +447,55 @@
               </property>
              </widget>
             </item>
-            <item row="2" column="1">
-             <layout class="QHBoxLayout" name="horizontalLayout_task">
-              <item>
-               <widget class="QRadioButton" name="radioButton_detect">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="contextMenuPolicy">
-                 <enum>Qt::DefaultContextMenu</enum>
-                </property>
-                <property name="text">
-                 <string>Detect</string>
-                </property>
-                <property name="checked">
-                 <bool>true</bool>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QRadioButton" name="radioButton_track">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="contextMenuPolicy">
-                 <enum>Qt::DefaultContextMenu</enum>
-                </property>
-                <property name="text">
-                 <string>Track</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-            <item row="2" column="0">
-             <widget class="QLabel" name="label_task">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="contextMenuPolicy">
-               <enum>Qt::DefaultContextMenu</enum>
-              </property>
+            <item row="8" column="0">
+             <widget class="QLabel" name="label_size">
               <property name="text">
-               <string>Task:</string>
+               <string>Size:</string>
               </property>
              </widget>
             </item>
-            <item row="1" column="1">
-             <layout class="QHBoxLayout" name="horizontalLayout_model">
-              <item>
-               <widget class="QLineEdit" name="lineEdit_model">
-                <property name="focusPolicy">
-                 <enum>Qt::ClickFocus</enum>
-                </property>
-                <property name="inputMethodHints">
-                 <set>Qt::ImhNone</set>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-                <property name="frame">
-                 <bool>true</bool>
-                </property>
-                <property name="readOnly">
-                 <bool>true</bool>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="button_model">
-                <property name="enabled">
-                 <bool>true</bool>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-                <property name="icon">
-                 <iconset>
-                  <normaloff>icons/file.png</normaloff>icons/file.png</iconset>
-                </property>
-                <property name="iconSize">
-                 <size>
-                  <width>20</width>
-                  <height>20</height>
-                 </size>
-                </property>
-                <property name="autoRepeatDelay">
-                 <number>300</number>
-                </property>
-                <property name="flat">
-                 <bool>true</bool>
-                </property>
-               </widget>
-              </item>
-             </layout>
+            <item row="9" column="0">
+             <widget class="QSpinBox" name="spinBox_size">
+              <property name="font">
+               <font>
+                <pointsize>10</pointsize>
+               </font>
+              </property>
+              <property name="inputMethodHints">
+               <set>Qt::ImhDigitsOnly</set>
+              </property>
+              <property name="minimum">
+               <number>640</number>
+              </property>
+              <property name="maximum">
+               <number>1280</number>
+              </property>
+              <property name="singleStep">
+               <number>32</number>
+              </property>
+              <property name="value">
+               <number>640</number>
+              </property>
+             </widget>
+            </item>
+            <item row="9" column="1">
+             <widget class="QSlider" name="horizontalSlider_size">
+              <property name="minimum">
+               <number>640</number>
+              </property>
+              <property name="maximum">
+               <number>1280</number>
+              </property>
+              <property name="singleStep">
+               <number>32</number>
+              </property>
+              <property name="tracking">
+               <bool>true</bool>
+              </property>
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+             </widget>
             </item>
            </layout>
           </item>
@@ -396,6 +506,13 @@
         <widget class="QTextBrowser" name="textBrowser"/>
        </item>
       </layout>
+     </widget>
+    </item>
+    <item>
+     <widget class="Line" name="line">
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
+      </property>
      </widget>
     </item>
     <item>
@@ -435,11 +552,9 @@
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
  <tabstops>
-  <tabstop>horizontalSlider_conf</tabstop>
   <tabstop>radioButton_detect</tabstop>
   <tabstop>button_local_camera</tabstop>
   <tabstop>lineEdit_model</tabstop>
-  <tabstop>horizontalSlider_iou</tabstop>
   <tabstop>button_file</tabstop>
   <tabstop>textBrowser</tabstop>
   <tabstop>button_network_camera</tabstop>
@@ -447,5 +562,102 @@
   <tabstop>radioButton_track</tabstop>
  </tabstops>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>horizontalSlider_conf</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>spinBox_conf</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>94</x>
+     <y>223</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>66</x>
+     <y>224</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>horizontalSlider_iou</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>spinBox_iou</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>112</x>
+     <y>284</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>71</x>
+     <y>285</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>spinBox_iou</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>horizontalSlider_iou</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>72</x>
+     <y>286</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>182</x>
+     <y>284</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>spinBox_conf</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>horizontalSlider_conf</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>59</x>
+     <y>226</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>186</x>
+     <y>224</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>spinBox_size</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>horizontalSlider_size</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>55</x>
+     <y>334</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>85</x>
+     <y>339</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>horizontalSlider_size</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>spinBox_size</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>147</x>
+     <y>327</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>69</x>
+     <y>333</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

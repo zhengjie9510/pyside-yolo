@@ -15,16 +15,17 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QFormLayout, QHBoxLayout, QLabel,
-    QLineEdit, QMainWindow, QMenuBar, QPushButton,
-    QRadioButton, QSizePolicy, QSlider, QStatusBar,
-    QTextBrowser, QVBoxLayout, QWidget)
+from PySide6.QtWidgets import (QApplication, QFormLayout, QFrame, QHBoxLayout,
+    QLabel, QLineEdit, QMainWindow, QMenuBar,
+    QPushButton, QRadioButton, QSizePolicy, QSlider,
+    QSpinBox, QStatusBar, QTextBrowser, QVBoxLayout,
+    QWidget)
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(840, 480)
+        MainWindow.resize(840, 500)
         icon = QIcon()
         icon.addFile(u"icons/window.png", QSize(), QIcon.Normal, QIcon.Off)
         MainWindow.setWindowIcon(icon)
@@ -40,12 +41,14 @@ class Ui_MainWindow(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.widget.sizePolicy().hasHeightForWidth())
         self.widget.setSizePolicy(sizePolicy)
-        self.widget.setMinimumSize(QSize(150, 0))
+        self.widget.setMinimumSize(QSize(200, 0))
         self.widget.setMaximumSize(QSize(250, 16777215))
         self.widget.setSizeIncrement(QSize(0, 0))
         self.widget.setBaseSize(QSize(0, 0))
+        self.widget.setAutoFillBackground(True)
         self.verticalLayout = QVBoxLayout(self.widget)
         self.verticalLayout.setObjectName(u"verticalLayout")
+        self.verticalLayout.setContentsMargins(-1, 0, -1, 0)
         self.widget_setting = QWidget(self.widget)
         self.widget_setting.setObjectName(u"widget_setting")
         sizePolicy1 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
@@ -54,9 +57,9 @@ class Ui_MainWindow(object):
         sizePolicy1.setHeightForWidth(self.widget_setting.sizePolicy().hasHeightForWidth())
         self.widget_setting.setSizePolicy(sizePolicy1)
         self.widget_setting.setBaseSize(QSize(0, 0))
-        self.horizontalLayout_2 = QHBoxLayout(self.widget_setting)
-        self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
-        self.horizontalLayout_2.setContentsMargins(0, 0, 0, 0)
+        self.verticalLayout_2 = QVBoxLayout(self.widget_setting)
+        self.verticalLayout_2.setObjectName(u"verticalLayout_2")
+        self.verticalLayout_2.setContentsMargins(0, 0, 0, 0)
         self.formLayout_setting = QFormLayout()
         self.formLayout_setting.setObjectName(u"formLayout_setting")
         self.formLayout_setting.setFieldGrowthPolicy(QFormLayout.AllNonFixedFieldsGrow)
@@ -64,6 +67,7 @@ class Ui_MainWindow(object):
         self.formLayout_setting.setFormAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
         self.formLayout_setting.setHorizontalSpacing(5)
         self.formLayout_setting.setVerticalSpacing(10)
+        self.formLayout_setting.setContentsMargins(-1, 0, -1, -1)
         self.label_model = QLabel(self.widget_setting)
         self.label_model.setObjectName(u"label_model")
         sizePolicy.setHeightForWidth(self.label_model.sizePolicy().hasHeightForWidth())
@@ -72,6 +76,61 @@ class Ui_MainWindow(object):
         self.label_model.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
 
         self.formLayout_setting.setWidget(1, QFormLayout.LabelRole, self.label_model)
+
+        self.horizontalLayout_model = QHBoxLayout()
+        self.horizontalLayout_model.setObjectName(u"horizontalLayout_model")
+        self.lineEdit_model = QLineEdit(self.widget_setting)
+        self.lineEdit_model.setObjectName(u"lineEdit_model")
+        self.lineEdit_model.setFocusPolicy(Qt.ClickFocus)
+        self.lineEdit_model.setInputMethodHints(Qt.ImhNone)
+        self.lineEdit_model.setFrame(True)
+
+        self.horizontalLayout_model.addWidget(self.lineEdit_model)
+
+        self.button_model = QPushButton(self.widget_setting)
+        self.button_model.setObjectName(u"button_model")
+        self.button_model.setEnabled(True)
+        self.button_model.setMaximumSize(QSize(30, 16777215))
+        icon1 = QIcon()
+        icon1.addFile(u"icons/file.png", QSize(), QIcon.Normal, QIcon.Off)
+        self.button_model.setIcon(icon1)
+        self.button_model.setIconSize(QSize(20, 20))
+        self.button_model.setFlat(True)
+
+        self.horizontalLayout_model.addWidget(self.button_model)
+
+
+        self.formLayout_setting.setLayout(1, QFormLayout.FieldRole, self.horizontalLayout_model)
+
+        self.label_task = QLabel(self.widget_setting)
+        self.label_task.setObjectName(u"label_task")
+        sizePolicy.setHeightForWidth(self.label_task.sizePolicy().hasHeightForWidth())
+        self.label_task.setSizePolicy(sizePolicy)
+        self.label_task.setContextMenuPolicy(Qt.DefaultContextMenu)
+
+        self.formLayout_setting.setWidget(2, QFormLayout.LabelRole, self.label_task)
+
+        self.horizontalLayout_task = QHBoxLayout()
+        self.horizontalLayout_task.setObjectName(u"horizontalLayout_task")
+        self.radioButton_detect = QRadioButton(self.widget_setting)
+        self.radioButton_detect.setObjectName(u"radioButton_detect")
+        sizePolicy.setHeightForWidth(self.radioButton_detect.sizePolicy().hasHeightForWidth())
+        self.radioButton_detect.setSizePolicy(sizePolicy)
+        self.radioButton_detect.setContextMenuPolicy(Qt.DefaultContextMenu)
+        self.radioButton_detect.setChecked(True)
+
+        self.horizontalLayout_task.addWidget(self.radioButton_detect)
+
+        self.radioButton_track = QRadioButton(self.widget_setting)
+        self.radioButton_track.setObjectName(u"radioButton_track")
+        sizePolicy.setHeightForWidth(self.radioButton_track.sizePolicy().hasHeightForWidth())
+        self.radioButton_track.setSizePolicy(sizePolicy)
+        self.radioButton_track.setContextMenuPolicy(Qt.DefaultContextMenu)
+
+        self.horizontalLayout_task.addWidget(self.radioButton_track)
+
+
+        self.formLayout_setting.setLayout(2, QFormLayout.FieldRole, self.horizontalLayout_task)
 
         self.label_input = QLabel(self.widget_setting)
         self.label_input.setObjectName(u"label_input")
@@ -89,8 +148,6 @@ class Ui_MainWindow(object):
         self.button_file.setAcceptDrops(False)
         self.button_file.setAutoFillBackground(False)
         self.button_file.setInputMethodHints(Qt.ImhNone)
-        icon1 = QIcon()
-        icon1.addFile(u"icons/file.png", QSize(), QIcon.Normal, QIcon.Off)
         self.button_file.setIcon(icon1)
         self.button_file.setIconSize(QSize(20, 20))
         self.button_file.setAutoExclusive(False)
@@ -133,13 +190,27 @@ class Ui_MainWindow(object):
 
         self.formLayout_setting.setWidget(4, QFormLayout.LabelRole, self.label_conf)
 
+        self.spinBox_conf = QSpinBox(self.widget_setting)
+        self.spinBox_conf.setObjectName(u"spinBox_conf")
+        font = QFont()
+        font.setPointSize(10)
+        self.spinBox_conf.setFont(font)
+        self.spinBox_conf.setAcceptDrops(False)
+        self.spinBox_conf.setWrapping(False)
+        self.spinBox_conf.setAccelerated(False)
+        self.spinBox_conf.setKeyboardTracking(True)
+        self.spinBox_conf.setMaximum(100)
+        self.spinBox_conf.setValue(25)
+
+        self.formLayout_setting.setWidget(5, QFormLayout.LabelRole, self.spinBox_conf)
+
         self.horizontalSlider_conf = QSlider(self.widget_setting)
         self.horizontalSlider_conf.setObjectName(u"horizontalSlider_conf")
         self.horizontalSlider_conf.setMaximum(100)
         self.horizontalSlider_conf.setSliderPosition(25)
         self.horizontalSlider_conf.setOrientation(Qt.Horizontal)
 
-        self.formLayout_setting.setWidget(4, QFormLayout.FieldRole, self.horizontalSlider_conf)
+        self.formLayout_setting.setWidget(5, QFormLayout.FieldRole, self.horizontalSlider_conf)
 
         self.label_iou = QLabel(self.widget_setting)
         self.label_iou.setObjectName(u"label_iou")
@@ -147,7 +218,15 @@ class Ui_MainWindow(object):
         self.label_iou.setSizePolicy(sizePolicy)
         self.label_iou.setContextMenuPolicy(Qt.DefaultContextMenu)
 
-        self.formLayout_setting.setWidget(5, QFormLayout.LabelRole, self.label_iou)
+        self.formLayout_setting.setWidget(6, QFormLayout.LabelRole, self.label_iou)
+
+        self.spinBox_iou = QSpinBox(self.widget_setting)
+        self.spinBox_iou.setObjectName(u"spinBox_iou")
+        self.spinBox_iou.setFont(font)
+        self.spinBox_iou.setMaximum(100)
+        self.spinBox_iou.setValue(70)
+
+        self.formLayout_setting.setWidget(7, QFormLayout.LabelRole, self.spinBox_iou)
 
         self.horizontalSlider_iou = QSlider(self.widget_setting)
         self.horizontalSlider_iou.setObjectName(u"horizontalSlider_iou")
@@ -155,64 +234,36 @@ class Ui_MainWindow(object):
         self.horizontalSlider_iou.setSliderPosition(70)
         self.horizontalSlider_iou.setOrientation(Qt.Horizontal)
 
-        self.formLayout_setting.setWidget(5, QFormLayout.FieldRole, self.horizontalSlider_iou)
+        self.formLayout_setting.setWidget(7, QFormLayout.FieldRole, self.horizontalSlider_iou)
 
-        self.horizontalLayout_task = QHBoxLayout()
-        self.horizontalLayout_task.setObjectName(u"horizontalLayout_task")
-        self.radioButton_detect = QRadioButton(self.widget_setting)
-        self.radioButton_detect.setObjectName(u"radioButton_detect")
-        sizePolicy.setHeightForWidth(self.radioButton_detect.sizePolicy().hasHeightForWidth())
-        self.radioButton_detect.setSizePolicy(sizePolicy)
-        self.radioButton_detect.setContextMenuPolicy(Qt.DefaultContextMenu)
-        self.radioButton_detect.setChecked(True)
+        self.label_size = QLabel(self.widget_setting)
+        self.label_size.setObjectName(u"label_size")
 
-        self.horizontalLayout_task.addWidget(self.radioButton_detect)
+        self.formLayout_setting.setWidget(8, QFormLayout.LabelRole, self.label_size)
 
-        self.radioButton_track = QRadioButton(self.widget_setting)
-        self.radioButton_track.setObjectName(u"radioButton_track")
-        sizePolicy.setHeightForWidth(self.radioButton_track.sizePolicy().hasHeightForWidth())
-        self.radioButton_track.setSizePolicy(sizePolicy)
-        self.radioButton_track.setContextMenuPolicy(Qt.DefaultContextMenu)
+        self.spinBox_size = QSpinBox(self.widget_setting)
+        self.spinBox_size.setObjectName(u"spinBox_size")
+        self.spinBox_size.setFont(font)
+        self.spinBox_size.setInputMethodHints(Qt.ImhDigitsOnly)
+        self.spinBox_size.setMinimum(640)
+        self.spinBox_size.setMaximum(1280)
+        self.spinBox_size.setSingleStep(32)
+        self.spinBox_size.setValue(640)
 
-        self.horizontalLayout_task.addWidget(self.radioButton_track)
+        self.formLayout_setting.setWidget(9, QFormLayout.LabelRole, self.spinBox_size)
 
+        self.horizontalSlider_size = QSlider(self.widget_setting)
+        self.horizontalSlider_size.setObjectName(u"horizontalSlider_size")
+        self.horizontalSlider_size.setMinimum(640)
+        self.horizontalSlider_size.setMaximum(1280)
+        self.horizontalSlider_size.setSingleStep(32)
+        self.horizontalSlider_size.setTracking(True)
+        self.horizontalSlider_size.setOrientation(Qt.Horizontal)
 
-        self.formLayout_setting.setLayout(2, QFormLayout.FieldRole, self.horizontalLayout_task)
-
-        self.label_task = QLabel(self.widget_setting)
-        self.label_task.setObjectName(u"label_task")
-        sizePolicy.setHeightForWidth(self.label_task.sizePolicy().hasHeightForWidth())
-        self.label_task.setSizePolicy(sizePolicy)
-        self.label_task.setContextMenuPolicy(Qt.DefaultContextMenu)
-
-        self.formLayout_setting.setWidget(2, QFormLayout.LabelRole, self.label_task)
-
-        self.horizontalLayout_model = QHBoxLayout()
-        self.horizontalLayout_model.setObjectName(u"horizontalLayout_model")
-        self.lineEdit_model = QLineEdit(self.widget_setting)
-        self.lineEdit_model.setObjectName(u"lineEdit_model")
-        self.lineEdit_model.setFocusPolicy(Qt.ClickFocus)
-        self.lineEdit_model.setInputMethodHints(Qt.ImhNone)
-        self.lineEdit_model.setFrame(True)
-        self.lineEdit_model.setReadOnly(True)
-
-        self.horizontalLayout_model.addWidget(self.lineEdit_model)
-
-        self.button_model = QPushButton(self.widget_setting)
-        self.button_model.setObjectName(u"button_model")
-        self.button_model.setEnabled(True)
-        self.button_model.setIcon(icon1)
-        self.button_model.setIconSize(QSize(20, 20))
-        self.button_model.setAutoRepeatDelay(300)
-        self.button_model.setFlat(True)
-
-        self.horizontalLayout_model.addWidget(self.button_model)
+        self.formLayout_setting.setWidget(9, QFormLayout.FieldRole, self.horizontalSlider_size)
 
 
-        self.formLayout_setting.setLayout(1, QFormLayout.FieldRole, self.horizontalLayout_model)
-
-
-        self.horizontalLayout_2.addLayout(self.formLayout_setting)
+        self.verticalLayout_2.addLayout(self.formLayout_setting)
 
 
         self.verticalLayout.addWidget(self.widget_setting)
@@ -224,6 +275,13 @@ class Ui_MainWindow(object):
 
 
         self.horizontalLayout.addWidget(self.widget)
+
+        self.line = QFrame(self.centralwidget)
+        self.line.setObjectName(u"line")
+        self.line.setFrameShape(QFrame.VLine)
+        self.line.setFrameShadow(QFrame.Sunken)
+
+        self.horizontalLayout.addWidget(self.line)
 
         self.label_image = QLabel(self.centralwidget)
         self.label_image.setObjectName(u"label_image")
@@ -242,17 +300,21 @@ class Ui_MainWindow(object):
         self.statusbar = QStatusBar(MainWindow)
         self.statusbar.setObjectName(u"statusbar")
         MainWindow.setStatusBar(self.statusbar)
-        QWidget.setTabOrder(self.horizontalSlider_conf, self.radioButton_detect)
         QWidget.setTabOrder(self.radioButton_detect, self.button_local_camera)
         QWidget.setTabOrder(self.button_local_camera, self.lineEdit_model)
-        QWidget.setTabOrder(self.lineEdit_model, self.horizontalSlider_iou)
-        QWidget.setTabOrder(self.horizontalSlider_iou, self.button_file)
+        QWidget.setTabOrder(self.lineEdit_model, self.button_file)
         QWidget.setTabOrder(self.button_file, self.textBrowser)
         QWidget.setTabOrder(self.textBrowser, self.button_network_camera)
         QWidget.setTabOrder(self.button_network_camera, self.button_model)
         QWidget.setTabOrder(self.button_model, self.radioButton_track)
 
         self.retranslateUi(MainWindow)
+        self.horizontalSlider_conf.valueChanged.connect(self.spinBox_conf.setValue)
+        self.horizontalSlider_iou.valueChanged.connect(self.spinBox_iou.setValue)
+        self.spinBox_iou.valueChanged.connect(self.horizontalSlider_iou.setValue)
+        self.spinBox_conf.valueChanged.connect(self.horizontalSlider_conf.setValue)
+        self.spinBox_size.valueChanged.connect(self.horizontalSlider_size.setValue)
+        self.horizontalSlider_size.valueChanged.connect(self.spinBox_size.setValue)
 
         QMetaObject.connectSlotsByName(MainWindow)
     # setupUi
@@ -260,17 +322,18 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"PySide-YOLO", None))
         self.label_model.setText(QCoreApplication.translate("MainWindow", u"Model:", None))
+        self.lineEdit_model.setText("")
+        self.button_model.setText("")
+        self.label_task.setText(QCoreApplication.translate("MainWindow", u"Task:", None))
+        self.radioButton_detect.setText(QCoreApplication.translate("MainWindow", u"Detect", None))
+        self.radioButton_track.setText(QCoreApplication.translate("MainWindow", u"Track", None))
         self.label_input.setText(QCoreApplication.translate("MainWindow", u"Input:", None))
         self.button_file.setText("")
         self.button_local_camera.setText("")
         self.button_network_camera.setText("")
-        self.label_conf.setText(QCoreApplication.translate("MainWindow", u"conf", None))
-        self.label_iou.setText(QCoreApplication.translate("MainWindow", u"IoU", None))
-        self.radioButton_detect.setText(QCoreApplication.translate("MainWindow", u"Detect", None))
-        self.radioButton_track.setText(QCoreApplication.translate("MainWindow", u"Track", None))
-        self.label_task.setText(QCoreApplication.translate("MainWindow", u"Task:", None))
-        self.lineEdit_model.setText("")
-        self.button_model.setText("")
+        self.label_conf.setText(QCoreApplication.translate("MainWindow", u"conf:", None))
+        self.label_iou.setText(QCoreApplication.translate("MainWindow", u"IoU:", None))
+        self.label_size.setText(QCoreApplication.translate("MainWindow", u"Size:", None))
         self.label_image.setText("")
     # retranslateUi
 

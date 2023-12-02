@@ -11,7 +11,7 @@ import torch
 import supervision as sv
 
 class ModelWrapper:
-    def __init__(self, model_path:str = None):
+    def __init__(self):
         self.my_device = 'cuda' if torch.backends.cudnn.is_available() else 'cpu'
         self.model = None
         self.byte_tracker = sv.ByteTrack()
@@ -71,6 +71,16 @@ class MainWindow(QMainWindow):
         self.ui.radioButton_detect.clicked.connect(self.change_task)
         self.ui.radioButton_track.clicked.connect(self.change_task)
 
+        self.ui.horizontalSlider_size.valueChanged.connect(lambda value: self.ui.horizontalSlider_size.setValue((value // 32) * 32))
+
+        self.installEventFilter(self)
+
+    def eventFilter(self, obj, event):
+        if obj == self and event.type() == QEvent.MouseButtonPress:
+            if not self.ui.lineEdit_model.geometry().contains(event.globalPosition().toPoint()):
+                self.ui.lineEdit_model.clearFocus()
+        return super().eventFilter(obj, event)
+    
     def change_model(self):
         """
         Change the model used by the application.
@@ -248,10 +258,12 @@ class MainWindow(QMainWindow):
             return image, 'No model loaded'
         conf = self.ui.horizontalSlider_conf.value() / 100
         iou = self.ui.horizontalSlider_iou.value() / 100
+        imgsz = self.ui.horizontalSlider_size.value()
+        print(conf,iou,imgsz)
         if self.task == 'detect':
-            result,log = self.model_wrapper.predict(image, conf=conf, iou=iou)
+            result,log = self.model_wrapper.predict(image, conf=conf, iou=iou, imgsz=imgsz)
         elif self.task == 'track':
-            result,log = self.model_wrapper.track(image, conf=conf, iou=iou)
+            result,log = self.model_wrapper.track(image, conf=conf, iou=iou, imgsz=imgsz)
         return result,log
 
 
