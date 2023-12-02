@@ -1,82 +1,68 @@
 import sys
 import cv2
 from pathlib import Path
-from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog
+from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog, QLineEdit
 from PySide6.QtGui import QPixmap, QImage, QResizeEvent
 from PySide6.QtCore import Qt, QTimer
 from ui_mainwindow import Ui_MainWindow
 from ultralytics import YOLO
+from PySide6.QtCore import QEvent
 import torch
 import supervision as sv
 
-
-class Model(YOLO):
-    """
-    A class representing a YOLO model.
-
-    Attributes:
-        device (str): The device to use for inference ('cuda' or 'cpu').
-        byte_tracker: The byte tracker object.
-        box_annotator: The bounding box annotator object.
-        label_annotator: The label annotator object.
-    """
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+class ModelWrapper:
+    def __init__(self, model_path:str = None):
         self.my_device = 'cuda' if torch.backends.cudnn.is_available() else 'cpu'
-        self.byte_tracker = None
+        self.model = None
+        self.byte_tracker = sv.ByteTrack()
         self.box_annotator = sv.BoundingBoxAnnotator()
         self.label_annotator = sv.LabelAnnotator()
+    
+    def change_model(self,model_path:str = None):
+        try:
+            self.model = YOLO(model_path) if model_path else None
+        except:
+            self.model = None
+        return self.model is not None
+
+    def reset_tracker(self):
+        self.byte_tracker = sv.ByteTrack()
 
     def predict(self, frame, **kwargs):
-        """
-        Perform object detection on a single frame.
-
-        Args:
-            frame: The input frame.
-            **kwargs: Additional keyword arguments for prediction.
-
-        Returns:
-            annotated_frame: The annotated frame with bounding boxes and labels.
-        """
-        results = super().predict(frame, verbose=False, device=self.my_device, **kwargs)[0]
+        results = self.model.predict(frame, verbose=False, device=self.my_device, **kwargs)[0]
         detections = sv.Detections.from_ultralytics(results)
         labels = [results.names[class_id] for class_id in detections.class_id]
         annotated_frame = self.box_annotator.annotate(frame, detections=detections)
         annotated_frame = self.label_annotator.annotate(annotated_frame, detections=detections, labels=labels)
-        return annotated_frame,results.verbose()
+        return annotated_frame, results.verbose()
 
     def track(self, frame, **kwargs):
-        """
-        Perform object tracking on a single frame.
-
-        Args:
-            frame: The input frame.
-            **kwargs: Additional keyword arguments for prediction.
-
-        Returns:
-            annotated_frame: The annotated frame with bounding boxes and labels.
-        """
-        results = super().predict(frame, verbose=False, device=self.my_device, **kwargs)[0]
+        results = self.model.predict(frame, verbose=False, device=self.my_device, **kwargs)[0]
         detections = sv.Detections.from_ultralytics(results)
         detections = self.byte_tracker.update_with_detections(detections)
-        labels = [f"#{tracker_id} {results.names[class_id]}" for class_id, tracker_id in zip(detections.class_id, detections.tracker_id)]
+        labels = [f"#{tracker_id} {results.names[class_id]}" for class_id, tracker_id in
+                  zip(detections.class_id, detections.tracker_id)]
         annotated_frame = self.box_annotator.annotate(frame, detections=detections)
         annotated_frame = self.label_annotator.annotate(annotated_frame, detections=detections, labels=labels)
-        return annotated_frame,results.verbose()
-
+        return annotated_frame, results.verbose()
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
-        self.setWindowTitle('PySide6-YOLO')
+
+        self.task = 'detect' if self.ui.radioButton_detect.isChecked() else 'track'
+        self.model_wrapper = ModelWrapper()
+
+        self.original_image = None  # Store the original image
+        self.video_capture = None  # Store the video capture object
 
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.update_frame)
-        self.original_image = None  # Store the original image
-        self.video_capture = None  # Store the video capture object
+
+        self.ui.button_model.clicked.connect(self.open_file_model)
+        self.ui.lineEdit_model.textChanged.connect(self.change_model)
 
         self.ui.button_file.clicked.connect(self.open_file)
         self.ui.button_local_camera.clicked.connect(self.open_camera)
@@ -84,34 +70,46 @@ class MainWindow(QMainWindow):
 
         self.ui.radioButton_detect.clicked.connect(self.change_task)
         self.ui.radioButton_track.clicked.connect(self.change_task)
-        self.ui.comboBox_model.currentIndexChanged.connect(self.change_model)
 
-        self.add_model_list()
-        self.change_model()
-        self.change_task()
-        
-
-    def add_model_list(self):
-        model_list = [model.name for model in Path('.').glob('*.pt')]
-        self.ui.comboBox_model.addItems(model_list)
-    
     def change_model(self):
-        model_path = self.ui.comboBox_model.currentText()
-        try:
-            self.model = Model(model_path) if model_path else None
-        except:
-            self.model = None
+        """
+        Change the model used by the application.
+
+        Retrieves the model path from the line edit widget and calls the `change_model` method of the `model_wrapper` object.
+        If the model is successfully changed, a success message is displayed in the status bar for 5 seconds.
+        Otherwise, a failure message is displayed.
+
+        Returns:
+            None
+        """
+        model_path = self.ui.lineEdit_model.text()
+        state = self.model_wrapper.change_model(model_path)
+        if state:
+            self.ui.statusbar.showMessage('Model loaded', 5000)
+        else:
+            self.ui.statusbar.showMessage('Model load failed', 5000)
 
     def change_task(self):
         """
         Change the task to either detection or tracking.
         """
         if self.ui.radioButton_detect.isChecked():
-            self.model.byte_tracker = None
+            self.model_wrapper.reset_tracker()
             self.task = 'detect'
+            self.ui.statusbar.showMessage('Detection mode',5000)
         elif self.ui.radioButton_track.isChecked():
-            self.model.byte_tracker = sv.ByteTrack()
+            self.model_wrapper.reset_tracker()
             self.task = 'track'
+            self.ui.statusbar.showMessage('Tracking mode',5000)
+    
+    def open_file_model(self):
+        """
+        Open a file dialog to select a model file.
+        """
+        file_dialog = QFileDialog()
+        name, _ = file_dialog.getOpenFileName(self, 'Open file',
+                                              filter='Model files (*.pt)')
+        self.ui.lineEdit_model.setText(name) if name else None
 
     def open_file(self):
         """
@@ -245,14 +243,15 @@ class MainWindow(QMainWindow):
         Returns:
             numpy.ndarray: The processed image.
         """
-        if self.model is None:
-            return image
+        self.change_model() if self.model_wrapper.model is None else None
+        if self.model_wrapper.model is None:
+            return image, 'No model loaded'
         conf = self.ui.horizontalSlider_conf.value() / 100
         iou = self.ui.horizontalSlider_iou.value() / 100
         if self.task == 'detect':
-            result,log = self.model.predict(image, conf=conf, iou=iou)
+            result,log = self.model_wrapper.predict(image, conf=conf, iou=iou)
         elif self.task == 'track':
-            result,log = self.model.track(image, conf=conf, iou=iou)
+            result,log = self.model_wrapper.track(image, conf=conf, iou=iou)
         return result,log
 
 
