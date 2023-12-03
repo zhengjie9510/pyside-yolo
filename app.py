@@ -6,19 +6,31 @@ from PySide6.QtGui import QPixmap, QImage, QResizeEvent
 from PySide6.QtCore import Qt, QTimer
 from ui_mainwindow import Ui_MainWindow
 from ultralytics import YOLO
-from PySide6.QtCore import QEvent
+from PySide6.QtCore import QEvent,QThread
 import torch
 import supervision as sv
+from time import time
+
+
 
 class ModelWrapper:
     def __init__(self):
-        self.my_device = 'cuda' if torch.backends.cudnn.is_available() else 'cpu'
+        self.my_device = 'cuda' if torch.cuda.is_available() else 'cpu'
         self.model = None
         self.byte_tracker = sv.ByteTrack()
         self.box_annotator = sv.BoundingBoxAnnotator()
         self.label_annotator = sv.LabelAnnotator()
     
-    def change_model(self,model_path:str = None):
+    def change_model(self, model_path: str = None):
+        """
+        Changes the model used for object detection.
+
+        Args:
+            model_path (str, optional): The path to the new model. Defaults to None.
+
+        Returns:
+            bool: True if the model is successfully changed, False otherwise.
+        """
         try:
             self.model = YOLO(model_path) if model_path else None
         except:
@@ -26,9 +38,23 @@ class ModelWrapper:
         return self.model is not None
 
     def reset_tracker(self):
+        """
+        Resets the byte tracker.
+        """
         self.byte_tracker = sv.ByteTrack()
 
     def predict(self, frame, **kwargs):
+        """
+        Perform object detection on a given frame.
+
+        Args:
+            frame: The input frame to perform object detection on.
+            **kwargs: Additional keyword arguments to be passed to the model's predict method.
+
+        Returns:
+            annotated_frame: The frame with annotated bounding boxes and labels.
+            verbose_results: The verbose results from the model's predict method.
+        """
         results = self.model.predict(frame, verbose=False, device=self.my_device, **kwargs)[0]
         detections = sv.Detections.from_ultralytics(results)
         labels = [results.names[class_id] for class_id in detections.class_id]
@@ -37,6 +63,17 @@ class ModelWrapper:
         return annotated_frame, results.verbose()
 
     def track(self, frame, **kwargs):
+        """
+        Track objects in a frame using the model.
+
+        Args:
+            frame: The input frame to track objects in.
+            **kwargs: Additional keyword arguments to pass to the model's predict method.
+
+        Returns:
+            annotated_frame: The frame with annotated bounding boxes and labels.
+            verbose_results: The verbose results from the model's predict method.
+        """
         results = self.model.predict(frame, verbose=False, device=self.my_device, **kwargs)[0]
         detections = sv.Detections.from_ultralytics(results)
         detections = self.byte_tracker.update_with_detections(detections)
@@ -76,6 +113,16 @@ class MainWindow(QMainWindow):
         self.installEventFilter(self)
 
     def eventFilter(self, obj, event):
+        """
+        Filters events for the specified object.
+
+        Args:
+            obj: The object to filter events for.
+            event: The event to be filtered.
+
+        Returns:
+            bool: True if the event was filtered, False otherwise.
+        """
         if obj == self and event.type() == QEvent.MouseButtonPress:
             if not self.ui.lineEdit_model.geometry().contains(event.globalPosition().toPoint()):
                 self.ui.lineEdit_model.clearFocus()
@@ -215,9 +262,13 @@ class MainWindow(QMainWindow):
         if self.video_capture and self.video_capture.isOpened():
             ret, frame = self.video_capture.read()
             if ret:
+                start_time = time()
                 image,log = self.apply_yolo_model(frame)
                 self.display_image(image, self.ui.label_image)
                 self.ui.textBrowser.setText(log)
+                end_time = time()
+                fps = int(1 / (end_time - start_time))
+                self.ui.statusbar.showMessage(f'FPS: {fps}',1000)
             else:
                 self.stop_update()
         else:
