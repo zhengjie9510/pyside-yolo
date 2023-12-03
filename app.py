@@ -259,7 +259,6 @@ class MainWindow(QMainWindow):
         conf = self.ui.horizontalSlider_conf.value() / 100
         iou = self.ui.horizontalSlider_iou.value() / 100
         imgsz = self.ui.horizontalSlider_size.value()
-        print(conf,iou,imgsz)
         if self.task == 'detect':
             result,log = self.model_wrapper.predict(image, conf=conf, iou=iou, imgsz=imgsz)
         elif self.task == 'track':
