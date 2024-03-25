@@ -1,16 +1,14 @@
 import sys
 import cv2
-from pathlib import Path
-from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog, QLineEdit
-from PySide6.QtGui import QPixmap, QImage, QResizeEvent
+from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog, QInputDialog
+from PySide6.QtGui import QPixmap, QImage
 from PySide6.QtCore import Qt, QTimer
 from ui_mainwindow import Ui_MainWindow
 from ultralytics import YOLO
-from PySide6.QtCore import QEvent,QThread
+from PySide6.QtCore import QEvent
 import torch
 import supervision as sv
 from time import time
-
 
 
 class ModelWrapper:
@@ -20,7 +18,7 @@ class ModelWrapper:
         self.byte_tracker = sv.ByteTrack()
         self.box_annotator = sv.BoundingBoxAnnotator()
         self.label_annotator = sv.LabelAnnotator()
-    
+
     def change_model(self, model_path: str = None):
         """
         Changes the model used for object detection.
@@ -59,7 +57,8 @@ class ModelWrapper:
         detections = sv.Detections.from_ultralytics(results)
         labels = [results.names[class_id] for class_id in detections.class_id]
         annotated_frame = self.box_annotator.annotate(frame, detections=detections)
-        annotated_frame = self.label_annotator.annotate(annotated_frame, detections=detections, labels=labels)
+        annotated_frame = self.label_annotator.annotate(
+            annotated_frame, detections=detections, labels=labels)
         return annotated_frame, results.verbose()
 
     def track(self, frame, **kwargs):
@@ -80,8 +79,10 @@ class ModelWrapper:
         labels = [f"#{tracker_id} {results.names[class_id]}" for class_id, tracker_id in
                   zip(detections.class_id, detections.tracker_id)]
         annotated_frame = self.box_annotator.annotate(frame, detections=detections)
-        annotated_frame = self.label_annotator.annotate(annotated_frame, detections=detections, labels=labels)
+        annotated_frame = self.label_annotator.annotate(
+            annotated_frame, detections=detections, labels=labels)
         return annotated_frame, results.verbose()
+
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -102,15 +103,21 @@ class MainWindow(QMainWindow):
         self.ui.lineEdit_model.textChanged.connect(self.change_model)
 
         self.ui.button_file.clicked.connect(self.open_file)
-        self.ui.button_local_camera.clicked.connect(self.open_camera)
-        self.ui.button_network_camera.deleteLater()
+        self.ui.button_local_camera.clicked.connect(self.open_local_camera)
+        self.ui.button_network_camera.clicked.connect(self.open_network_camera_dialog)
 
         self.ui.radioButton_detect.clicked.connect(self.change_task)
         self.ui.radioButton_track.clicked.connect(self.change_task)
 
-        self.ui.horizontalSlider_size.valueChanged.connect(lambda value: self.ui.horizontalSlider_size.setValue((value // 32) * 32))
+        self.ui.horizontalSlider_size.valueChanged.connect(
+            lambda value: self.ui.horizontalSlider_size.setValue((value // 32) * 32))
 
         self.installEventFilter(self)
+
+    def open_network_camera_dialog(self):
+        url, ok_pressed = QInputDialog.getText(self, "Input URL", "Enter URL:")
+        if ok_pressed:
+            self.open_network_camera(url)
 
     def eventFilter(self, obj, event):
         """
@@ -127,7 +134,7 @@ class MainWindow(QMainWindow):
             if not self.ui.lineEdit_model.geometry().contains(event.globalPosition().toPoint()):
                 self.ui.lineEdit_model.clearFocus()
         return super().eventFilter(obj, event)
-    
+
     def change_model(self):
         """
         Change the model used by the application.
@@ -153,12 +160,12 @@ class MainWindow(QMainWindow):
         if self.ui.radioButton_detect.isChecked():
             self.model_wrapper.reset_tracker()
             self.task = 'detect'
-            self.ui.statusbar.showMessage('Detection mode',5000)
+            self.ui.statusbar.showMessage('Detection mode', 5000)
         elif self.ui.radioButton_track.isChecked():
             self.model_wrapper.reset_tracker()
             self.task = 'track'
-            self.ui.statusbar.showMessage('Tracking mode',5000)
-    
+            self.ui.statusbar.showMessage('Tracking mode', 5000)
+
     def open_file_model(self):
         """
         Open a file dialog to select a model file.
@@ -208,9 +215,12 @@ class MainWindow(QMainWindow):
         """
         self.stop_update()
         image = cv2.imread(file_path)
-        self.original_image = image
-        self.display_image(self.original_image.copy(), self.ui.label_image)
-        self.timer.start(500)
+        if image is not None:
+            self.original_image = image
+            self.display_image(self.original_image.copy(), self.ui.label_image)
+            self.timer.start(100)
+        else:
+            self.ui.statusbar.showMessage(f"Failed: {file_path}")
 
     def play_video(self, file_path):
         """
@@ -224,9 +234,13 @@ class MainWindow(QMainWindow):
         """
         self.stop_update()
         self.video_capture = cv2.VideoCapture(file_path)
-        self.timer.start()
+        if self.video_capture.isOpened():
+            self.ui.statusbar.showMessage(f"Local Video: {file_path}")
+            self.timer.start()
+        else:
+            self.ui.statusbar.showMessage(f"Failed: {file_path}")
 
-    def open_camera(self):
+    def open_local_camera(self):
         """
         打开摄像头并开始视频捕获。
 
@@ -237,7 +251,29 @@ class MainWindow(QMainWindow):
         """
         self.stop_update()
         self.video_capture = cv2.VideoCapture(0)
-        self.timer.start()
+        if self.video_capture.isOpened():
+            self.ui.statusbar.showMessage("Local Camera")
+            self.timer.start()
+        else:
+            self.ui.statusbar.showMessage(f"Failed: Local Camera")
+
+    def open_network_camera(self, url):
+        """
+        Open a network camera and start video capture.
+
+        Args:
+            url (str): The URL of the network camera.
+
+        Returns:
+            None
+        """
+        self.stop_update()
+        self.video_capture = cv2.VideoCapture(url)
+        if self.video_capture.isOpened():
+            self.ui.statusbar.showMessage(f"Network Camera: {url}")
+            self.timer.start()
+        else:
+            self.ui.statusbar.showMessage(f"Failed: {url}")
 
     def stop_update(self):
         """
@@ -260,19 +296,19 @@ class MainWindow(QMainWindow):
         If the video capture is not opened, it displays the original image in the UI.
         """
         if self.video_capture and self.video_capture.isOpened():
+            start_time = time()
             ret, frame = self.video_capture.read()
             if ret:
-                start_time = time()
-                image,log = self.apply_yolo_model(frame)
+                image, log = self.apply_yolo_model(frame)
                 self.display_image(image, self.ui.label_image)
                 self.ui.textBrowser.setText(log)
                 end_time = time()
                 fps = int(1 / (end_time - start_time))
-                self.ui.statusbar.showMessage(f'FPS: {fps}',1000)
+                self.ui.statusbar.showMessage(f'FPS: {fps}', 1000)
             else:
                 self.stop_update()
         else:
-            image,log = self.apply_yolo_model(self.original_image.copy())
+            image, log = self.apply_yolo_model(self.original_image.copy())
             self.display_image(image, self.ui.label_image)
             self.ui.textBrowser.setText(log)
 
@@ -311,10 +347,10 @@ class MainWindow(QMainWindow):
         iou = self.ui.horizontalSlider_iou.value() / 100
         imgsz = self.ui.horizontalSlider_size.value()
         if self.task == 'detect':
-            result,log = self.model_wrapper.predict(image, conf=conf, iou=iou, imgsz=imgsz)
+            result, log = self.model_wrapper.predict(image, conf=conf, iou=iou, imgsz=imgsz)
         elif self.task == 'track':
-            result,log = self.model_wrapper.track(image, conf=conf, iou=iou, imgsz=imgsz)
-        return result,log
+            result, log = self.model_wrapper.track(image, conf=conf, iou=iou, imgsz=imgsz)
+        return result, log
 
 
 if __name__ == "__main__":
