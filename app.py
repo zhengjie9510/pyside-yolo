@@ -55,7 +55,8 @@ class ModelWrapper:
         """
         results = self.model.predict(frame, verbose=False, device=self.my_device, **kwargs)[0]
         detections = sv.Detections.from_ultralytics(results)
-        labels = [results.names[class_id] for class_id in detections.class_id]
+        labels = [f"{category} {conf:.2f}" for category, conf in zip(
+            detections.data['class_name'], detections.confidence)]
         annotated_frame = self.box_annotator.annotate(frame, detections=detections)
         annotated_frame = self.label_annotator.annotate(
             annotated_frame, detections=detections, labels=labels)
@@ -76,8 +77,8 @@ class ModelWrapper:
         results = self.model.predict(frame, verbose=False, device=self.my_device, **kwargs)[0]
         detections = sv.Detections.from_ultralytics(results)
         detections = self.byte_tracker.update_with_detections(detections)
-        labels = [f"#{tracker_id} {results.names[class_id]}" for class_id, tracker_id in
-                  zip(detections.class_id, detections.tracker_id)]
+        labels = [f"#{tracker_id} {results.names[class_id]} {conf:.2f}" for class_id, tracker_id, conf in
+                  zip(detections.class_id, detections.tracker_id, detections.confidence)]
         annotated_frame = self.box_annotator.annotate(frame, detections=detections)
         annotated_frame = self.label_annotator.annotate(
             annotated_frame, detections=detections, labels=labels)
