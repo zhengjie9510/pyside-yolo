@@ -7,8 +7,42 @@ from ui_mainwindow import Ui_MainWindow
 from ultralytics import YOLO
 from PySide6.QtCore import QEvent
 import torch
+import queue
+import threading
 import supervision as sv
 from time import time
+
+
+class VideoCapture:
+
+    def __init__(self, name):
+        self.cap = cv2.VideoCapture(name)
+        self.q = queue.Queue()
+        t = threading.Thread(target=self._reader)
+        t.daemon = True
+        t.start()
+
+    # read frames as soon as they are available, keeping only most recent one
+    def _reader(self):
+        while True:
+            ret, frame = self.cap.read()
+            if not ret:
+                break
+            if not self.q.empty():
+                try:
+                    self.q.get_nowait()   # discard previous (unprocessed) frame
+                except queue.Empty:
+                    pass
+            self.q.put(frame)
+
+    def read(self):
+        return True, self.q.get()
+
+    def isOpened(self):
+        return self.cap.isOpened()
+
+    def release(self):
+        return self.cap.release()
 
 
 class ModelWrapper:
@@ -53,11 +87,13 @@ class ModelWrapper:
             annotated_frame: The frame with annotated bounding boxes and labels.
             verbose_results: The verbose results from the model's predict method.
         """
-        results = self.model.predict(frame, verbose=False, device=self.my_device, **kwargs)[0]
+        results = self.model.predict(
+            frame, verbose=False, device=self.my_device, **kwargs)[0]
         detections = sv.Detections.from_ultralytics(results)
         labels = [f"{category} {conf:.2f}" for category, conf in zip(
             detections.data['class_name'], detections.confidence)]
-        annotated_frame = self.box_annotator.annotate(frame, detections=detections)
+        annotated_frame = self.box_annotator.annotate(
+            frame, detections=detections)
         annotated_frame = self.label_annotator.annotate(
             annotated_frame, detections=detections, labels=labels)
         return annotated_frame, results.verbose()
@@ -74,12 +110,14 @@ class ModelWrapper:
             annotated_frame: The frame with annotated bounding boxes and labels.
             verbose_results: The verbose results from the model's predict method.
         """
-        results = self.model.predict(frame, verbose=False, device=self.my_device, **kwargs)[0]
+        results = self.model.predict(
+            frame, verbose=False, device=self.my_device, **kwargs)[0]
         detections = sv.Detections.from_ultralytics(results)
         detections = self.byte_tracker.update_with_detections(detections)
         labels = [f"#{tracker_id} {results.names[class_id]} {conf:.2f}" for class_id, tracker_id, conf in
                   zip(detections.class_id, detections.tracker_id, detections.confidence)]
-        annotated_frame = self.box_annotator.annotate(frame, detections=detections)
+        annotated_frame = self.box_annotator.annotate(
+            frame, detections=detections)
         annotated_frame = self.label_annotator.annotate(
             annotated_frame, detections=detections, labels=labels)
         return annotated_frame, results.verbose()
@@ -105,7 +143,8 @@ class MainWindow(QMainWindow):
 
         self.ui.button_file.clicked.connect(self.open_file)
         self.ui.button_local_camera.clicked.connect(self.open_local_camera)
-        self.ui.button_network_camera.clicked.connect(self.open_network_camera_dialog)
+        self.ui.button_network_camera.clicked.connect(
+            self.open_network_camera_dialog)
 
         self.ui.radioButton_detect.clicked.connect(self.change_task)
         self.ui.radioButton_track.clicked.connect(self.change_task)
@@ -269,7 +308,7 @@ class MainWindow(QMainWindow):
             None
         """
         self.stop_update()
-        self.video_capture = cv2.VideoCapture(url)
+        self.video_capture = VideoCapture(url)
         if self.video_capture.isOpened():
             self.ui.statusbar.showMessage(f"Network Camera: {url}")
             self.timer.start()
@@ -323,12 +362,14 @@ class MainWindow(QMainWindow):
         """
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         height, width, channel = image.shape
-        image = QImage(image, width, height, width * channel, QImage.Format_RGB888)
+        image = QImage(image, width, height, width *
+                       channel, QImage.Format_RGB888)
         pixmap = QPixmap.fromImage(image)
         scale_ratio = min(label.width() / width, label.height() / height)
         new_width = int(width * scale_ratio)
         new_height = int(height * scale_ratio)
-        pixmap = pixmap.scaled(new_width, new_height, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+        pixmap = pixmap.scaled(new_width, new_height,
+                               Qt.KeepAspectRatio, Qt.SmoothTransformation)
         label.setPixmap(pixmap)
 
     def apply_yolo_model(self, image):
@@ -348,9 +389,11 @@ class MainWindow(QMainWindow):
         iou = self.ui.horizontalSlider_iou.value() / 100
         imgsz = self.ui.horizontalSlider_size.value()
         if self.task == 'detect':
-            result, log = self.model_wrapper.predict(image, conf=conf, iou=iou, imgsz=imgsz)
+            result, log = self.model_wrapper.predict(
+                image, conf=conf, iou=iou, imgsz=imgsz)
         elif self.task == 'track':
-            result, log = self.model_wrapper.track(image, conf=conf, iou=iou, imgsz=imgsz)
+            result, log = self.model_wrapper.track(
+                image, conf=conf, iou=iou, imgsz=imgsz)
         return result, log
 
 
