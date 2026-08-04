@@ -1,0 +1,11 @@
+[project]
+name = "pyside-yolo"
+version = "0.1.0"
+description = "Add your description here"
+requires-python = ">=3.13"
+dependencies = [
+    "opencv-python>=4.9",
+    "pyside6>=6.6",
+    "supervision==0.19.0",
+    "ultralytics>=8.1",
+]
